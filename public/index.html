@@ -1,0 +1,31 @@
+<!-- public/index.html -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Block Web Chat Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="chat-container">
+      <header class="chat-header">
+        <h1>Book with Block</h1>
+        <p>Ask me to book an appointment 📅</p>
+      </header>
+      <main id="chat" class="chat-messages"></main>
+      <form id="chat-form" class="chat-input">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Type a message..."
+          autocomplete="off"
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
+

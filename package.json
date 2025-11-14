@@ -1,0 +1,27 @@
+{
+  "name": "block-webchat-tutorial",
+  "version": "1.0.0",
+  "description": "A minimal web chat widget that books appointments via Block API",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "block",
+    "api",
+    "chat",
+    "appointments",
+    "tutorial"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "openai": "^4.20.1"
+  }
+}
+
