@@ -19,17 +19,8 @@ You'll need:
 
 - Node.js 18+
 - An OpenAI API key (or another LLM that supports tools / function calling)
-- A Block API key and basic familiarity with your Block docs at [https://useblock.tech/docs](https://useblock.tech/docs) (for:
-  - Base URL
-  - "Create appointment" endpoint
-  - Required fields)
+- A Block API key and basic familiarity with your Block docs at [https://useblock.tech/docs](https://useblock.tech/docs)
 - A Block connection ID (created via the Block developer portal)
-
-For the rest of this tutorial I'll assume:
-
-`BLOCK_API_BASE_URL = https://api.useblock.tech`
-
-🔧 Replace the URL and payload shape with whatever your real "create appointment" endpoint is.
 
 ---
 
@@ -68,6 +59,7 @@ BLOCK_API_KEY=block_key_...
 BLOCK_API_BASE_URL=https://api.useblock.tech
 CONNECTION_ID=conn_...
 PORT=3000
+DEFAULT_PROVIDER="Get this from the connected booking system"
 EOF
 ```
 
@@ -93,13 +85,12 @@ This file:
    - Feeds the result back into the LLM
    - Returns the final, user-friendly answer.
 
-See `server.js` for the complete implementation.
-
 ### Key Block API Integration Details
 
 The Block API uses an async execution pattern:
 
 1. **POST `/v1/actions`** - Submit the booking action
+
    - Returns a `jobId` immediately (HTTP 202)
    - Request format:
      ```json
@@ -125,15 +116,6 @@ The Block API uses an async execution pattern:
    - When status is `success`, the `result` field contains the booking details
 
 The `bookAppointmentViaBlock` function in `server.js` handles both steps automatically.
-
-🔁 Where to customize for Block:
-
-- The `bookAppointmentViaBlock` function:
-  - The URL path: `/v1/actions` (for submitting) and `/v1/jobs/{jobId}` (for polling)
-  - The fields you send in `payload`
-  - The fields you read from `result`
-
-Check your actual Block docs and adjust: [https://useblock.tech/docs](https://useblock.tech/docs)
 
 ---
 
@@ -190,90 +172,19 @@ You should see:
 2. A tool call → your server calls the Block API via `bookAppointmentViaBlock`.
 3. A confirmation message summarizing the booked appointment.
 
----
-
-## 9. How to tailor this to Block (for your final tutorial)
-
-In your published tutorial / README, you can tighten the Block-specific pieces by:
-
-1. Linking directly to the right section of your docs, e.g. "Block → Appointments → Create appointment".
-2. Replacing the placeholder `bookAppointmentViaBlock` implementation with the exact code:
-   - Correct URL path: `/v1/actions` (for submitting actions)
-   - Correct request body fields (action, connectionId, payload)
-   - Correct response fields mapped into the object given to the LLM
-   - Async job polling pattern (GET `/v1/jobs/{jobId}`)
-3. Optionally showing a second tool for "list availability" or "reschedule appointment" to show that once you've wired the first one, the rest is trivial.
-
----
-
-## Block API Reference
-
-- **Base URL**: `https://api.useblock.tech`
-- **Authentication**: `Authorization: Bearer block_key_...`
-- **Actions Endpoint**: `POST /v1/actions`
-- **Jobs Endpoint**: `GET /v1/jobs/{jobId}`
-- **Documentation**: [https://useblock.tech/docs](https://useblock.tech/docs)
-
-### BookAppointment Action
-
-**Request:**
-```json
-{
-  "action": "BookAppointment",
-  "connectionId": "conn_abc123",
-  "payload": {
-    "datetime": "2025-11-15T14:00:00-08:00",
-    "provider": "Provider Name",
-    "service": "Service Name",
-    "customer": {
-      "firstName": "Jane",
-      "lastName": "Doe",
-      "phone": "+12065551212",
-      "email": "jane@example.com"
-    },
-    "note": "Optional note",
-    "duration": 60
-  }
-}
-```
-
-**Response (immediate):**
-```json
-{
-  "jobId": "job_789xyz",
-  "status": "queued",
-  "action": "BookAppointment",
-  "connectionId": "conn_abc123",
-  "createdAt": "2025-11-12T05:13:45.940072+00:00"
-}
-```
-
-**Job Status (after polling):**
-```json
-{
-  "jobId": "job_789xyz",
-  "status": "success",
-  "result": {
-    "appointmentId": "appt_123",
-    "datetime": "2025-11-15T14:00:00-08:00",
-    "service": "Service Name"
-  }
-}
-```
-
----
-
 ## Troubleshooting
 
 ### "BLOCK_API_KEY or CONNECTION_ID is not configured"
 
 Make sure your `.env` file contains:
+
 - `BLOCK_API_KEY` - Your Block API key (starts with `block_key_`)
 - `CONNECTION_ID` - Your Block connection ID (starts with `conn_`)
 
 ### "Booking timed out"
 
 The job polling has a 2-minute timeout. If bookings take longer, you may need to:
+
 - Increase the timeout in `bookAppointmentViaBlock`
 - Use webhooks instead of polling (see Block docs)
 
@@ -283,13 +194,13 @@ Your API key may be invalid or expired. Check your Block developer portal.
 
 ---
 
-## Next Steps
+## Possible Extensions
 
-- Add more tools (e.g., `get_availability`, `cancel_appointment`)
+- Add more tools (e.g., `get_availability`)
 - Implement webhook handling instead of polling
-- Add error handling and retry logic
 - Style the chat widget to match your brand
 - Deploy to a hosting service (Vercel, Railway, etc.)
+- Set up chat history persistence
 
 ---
 
@@ -297,3 +208,4 @@ Your API key may be invalid or expired. Check your Block developer portal.
 
 MIT
 
+**Note:** This tutorial application uses the Block API, which is subject to the Block Integration API Terms of Service. By using this code with the Block API, you agree to comply with those terms.
